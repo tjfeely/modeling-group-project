@@ -9,7 +9,10 @@ st.title("Personal Budget Analyzer, Savings Predictor, and Investment Planner")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-menu = st.sidebar.radio("Select a section:", ["Home", "Expense Input", "Spending Analysis", "Savings Prediction", "Investment Planning"])
+menu = st.sidebar.radio(
+    "Select a section:", 
+    ["Home", "Income Input", "Expense Input", "Spending Analysis", "Savings Prediction", "Investment Planning"]
+)
 
 # Home Section
 if menu == "Home":
@@ -21,6 +24,23 @@ if menu == "Home":
         - Plan your investments
     """)
     st.image("finance_dashboard.jpg", caption="Manage your finances effectively.")  # Replace with your image path.
+
+# Monthly Income Input Section
+elif menu == "Income Input":
+    st.header("Enter Your Monthly Income")
+    
+    # Input for monthly income
+    monthly_income = st.number_input(
+        "Enter your total monthly income ($):", 
+        min_value=0.0, 
+        step=100.0
+    )
+    
+    if st.button("Save Income"):
+        # Save the income to a file (e.g., text file for simplicity)
+        with open("income.txt", "w") as f:
+            f.write(str(monthly_income))
+        st.success("Monthly income saved successfully!")
 
 # Expense Input Section
 elif menu == "Expense Input":
@@ -48,6 +68,17 @@ elif menu == "Spending Analysis":
         fig, ax = plt.subplots()
         expenses_df.sum().plot(kind="pie", ax=ax, autopct='%1.1f%%', startangle=90)
         st.pyplot(fig)
+        
+        # Compare with income if available
+        try:
+            with open("income.txt", "r") as f:
+                monthly_income = float(f.read())
+            total_expenses = expenses_df.sum().sum()
+            savings_potential = monthly_income - total_expenses
+            st.write(f"Your total expenses: ${total_expenses:.2f}")
+            st.write(f"Your monthly savings potential: ${savings_potential:.2f}")
+        except FileNotFoundError:
+            st.warning("Monthly income not provided. Please input it in the 'Income Input' section.")
     except FileNotFoundError:
         st.warning("No expense data found. Please input expenses first.")
 
